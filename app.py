@@ -1,34 +1,7 @@
-from flask import Flask, render_template_string, redirect, session
-import random
-from datetime import datetime
-import os
-
+from flask import Flask
 app = Flask(__name__)
 app.secret_key = "footy-pro-2026-secret"
-
-MOCK_MATCHES = [
-    {"home": "Lens", "away": "Sporting", "time": "20:45", "league": "Champions League", "odd_home": 2.1, "odd_draw": 3.4, "odd_away": 3.2, "tip": "Over 1.5", "conf": "87%"},
-    {"home": "Arsenal", "away": "Lille", "time": "20:45", "league": "Champions League", "odd_home": 1.65, "odd_draw": 3.8, "odd_away": 4.5, "tip": "Arsenal Win", "conf": "82%"},
-    {"home": "Atletico Madrid", "away": "Man United", "time": "21:00", "league": "Champions League", "odd_home": 2.3, "odd_draw": 3.3, "odd_away": 2.9, "tip": "BTTS Yes", "conf": "79%"},
-    {"home": "Gor Mahia", "away": "AFC Leopards", "time": "15:00", "league": "FKF PL", "odd_home": 2.0, "odd_draw": 3.0, "odd_away": 3.5, "tip": "Under 2.5", "conf": "75%"},
-]
-
-HTML = """
-<!DOCTYPE html>
-<html><head><meta name="viewport" content="width=device-width, initial-scale=1"><title>FOOTY PRO 2026</title>
-<style>body{margin:0;font-family:Arial;background:#0f172a;color:white}.header{background:#1e293b;padding:15px;display:flex;justify-content:space-between;align-items:center}.logo{font-weight:bold;font-size:20px;color:#22c55e}.btn{background:#22c55e;color:black;border:none;padding:10px 18px;border-radius:8px;font-weight:bold;cursor:pointer}.card{background:#1e293b;margin:12px;border-radius:12px;padding:15px;border:1px solid #334155}.odd{display:inline-block;background:#0f172a;padding:6px 10px;border-radius:6px;margin:3px;font-size:13px}.tip{background:#22c55e;color:black;padding:4px 8px;border-radius:5px;font-weight:bold;font-size:12px}.top{color:#94a3b8;font-size:12px}.paid{background:#16a34a;padding:12px;border-radius:8px;text-align:center;margin:10px 12px;font-weight:bold}</style>
-</head><body>
-<div class="header"><div class="logo">⚽ FOOTY PRO 2026</div><div>{% if session.get('paid') %}<span style="color:#22c55e">Umeshalipa!</span> <a href="/logout" style="color:white;margin-left:10px">Logout</a>{% else %}<a href="/pay"><button class="btn">Lipa 50 KES</button></a>{% endif %}</div></div>
-<div style="padding:12px"><button class="btn" style="width:100%;padding:14px" onclick="location.href='/fetch'">🔄 Fetch Mechi</button></div>
-{% if session.get('paid') %}<div class="paid">✅ Umeshalipa - Karibu! Odds Zote Ziko Hapa</div>{% endif %}
-{% for m in matches %}<div class="card"><div class="top">{{m.league}} • {{m.time}} • {{m.conf}}</div><div style="font-size:18px;margin:8px 0;font-weight:bold">{{m.home}} vs {{m.away}}</div><div><span class="odd">1: {{m.odd_home}}</span><span class="odd">X: {{m.odd_draw}}</span><span class="odd">2: {{m.odd_away}}</span><span class="tip">{{m.tip}}</span></div></div>{% endfor %}</body></html>
-"""
+HTML = """<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui}body{background:#131a26;color:#fff;padding-bottom:120px}.header{display:flex;justify-content:space-between;padding:12px;background:#1a2332;position:sticky;top:0}.logo{font-weight:900;font-size:20px;color:#ffeb3b}.deposit{background:#ffeb3b;color:#000;padding:8px 20px;border-radius:20px;font-weight:900;border:none}.tabs{display:flex;gap:10px;overflow-x:auto;padding:12px;background:#1a2332}.tab{padding:8px 16px;background:#232f45;border-radius:20px;font-size:13px}.tab.active{background:#fff;color:#000}.fetch{background:#00e676;color:#000;width:92%;margin:12px 4%;padding:14px;border:none;border-radius:10px;font-weight:900}.match{background:#1e2a3e;margin:10px;border-radius:14px;padding:14px;border:1px solid #2a3a52}.head{font-size:11px;color:#8a9bb5;display:flex;justify-content:space-between;margin-bottom:10px}.teams{font-size:16px;font-weight:700;margin-bottom:12px}.odds{display:flex;gap:8px}.o{flex:1;background:#2a3a52;padding:11px;text-align:center;border-radius:25px;font-weight:800}.o.green{background:#00e676;color:#000}.mark{color:#00e676;font-size:11px;text-align:right;margin-top:8px}.bottom{position:fixed;bottom:56px;left:0;right:0;background:#ffeb3b;color:#000;padding:12px 16px;display:flex;justify-content:space-between;font-weight:800}.nav{position:fixed;bottom:0;left:0;right:0;background:#1a2332;display:flex;justify-content:space-around;padding:10px 0}.ni{font-size:11px;text-align:center;color:#8a9bb5}.ni.active{color:#00e676}</style></head><body><div class="header"><div class="logo">⚽ FOOTY PRO 2026</div><div><button class="deposit">Deposit</button></div></div><div class="tabs"><div class="tab active">⚽ Soccer</div><div class="tab">Ligi Bigi</div><div class="tab">Virtuals</div><div class="tab">Aviator</div><div class="tab">Casino</div></div><button class="fetch">🔄 AI Predictions 82% Win</button><div><div class="match"><div class="head"><span>⚽ FKF PL</span><span>75%</span></div><div class="teams">Gor Mahia vs AFC Leopards</div><div class="odds"><div class="o">2.0</div><div class="o">3.0</div><div class="o green">Under 2.5</div></div><div class="mark">+62 Markets</div></div><div class="match"><div class="head"><span>⚽ UCL</span><span>87%</span></div><div class="teams">Lens vs Sporting</div><div class="odds"><div class="o">2.1</div><div class="o">3.4</div><div class="o green">Over 1.5</div></div><div class="mark">+82 Markets</div></div><div class="match"><div class="head"><span>⚽ UCL</span><span>79%</span></div><div class="teams">Atletico vs Man United</div><div class="odds"><div class="o">2.3</div><div class="o">3.3</div><div class="o green">BTTS Yes</div></div><div class="mark">+82 Markets</div></div><div class="match"><div class="head"><span>⚽ UCL</span><span>82%</span></div><div class="teams">Arsenal vs Lille</div><div class="odds"><div class="o">1.65</div><div class="o">3.8</div><div class="o green">Arsenal Win</div></div><div class="mark">+76 Markets</div></div></div><div class="bottom"><span>Odds 14.62</span><span>Payout KES 14.62</span></div><div class="nav"><div class="ni active">🏠<br>Home</div><div class="ni">▶️<br>Live</div><div class="ni">📄<br>My Bets</div><div class="ni">👤<br>Profile</div></div></body></html>"""
 @app.route('/')
-def home(): return render_template_string(HTML, matches=MOCK_MATCHES, now=datetime.now().strftime("%H:%M"))
-@app.route('/fetch')
-def fetch(): random.shuffle(MOCK_MATCHES); return redirect('/')
-@app.route('/pay')
-def pay(): session['paid']=True; return redirect('/')
-@app.route('/logout')
-def logout(): session.clear(); return redirect('/')
-if __name__ == '__main__': app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
+def home(): return HTML
+if __name__ == '__main__': app.run()
